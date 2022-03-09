@@ -26,8 +26,8 @@ get '/posts' do
   title
 end
 
-get '/movies' do
-    data = {}
+get '/films' do
+    data = {"films" => []}
     
     query = "
     SELECT DISTINCT ?movieName
@@ -41,14 +41,14 @@ get '/movies' do
 
   result = sparql.query(query)
   result.each_solution do |solution|
-    solution.each_value    { |value| puts value }
+    solution.each_value    { |value| data["films"] << value }
   end
 
-  data
+  JSON[data]
 end
 
-get '/cast' do
-    data = {}
+get '/actors' do
+    data = {"actors" => []}
     
     query = "
     SELECT ?l
@@ -62,9 +62,9 @@ get '/cast' do
 
   result = sparql.query(query)
   result.each_solution do |solution|
-    solution.each_value    { |value| puts value }
+    solution.each_value    { |value| data["actors"] << value }
   end
 
-  data
+  JSON[data]
 end
 
