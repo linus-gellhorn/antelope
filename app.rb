@@ -1,4 +1,7 @@
 require 'sinatra'
+require 'sparql/client'
+
+sparql = SPARQL::Client.new("http://dbpedia.org/sparql")
 
 get '/' do
   'Hello world!'
@@ -21,4 +24,11 @@ get '/posts' do
   # uses title and author variables; query is optional to the /posts route
   author
   title
+end
+
+get '/db' do
+  # ASK WHERE { ?s ?p ?o }
+  result = sparql.ask.whether([:s, :p, :o]).true?
+  puts result.inspect   # => true or false
+  result.inspect
 end
