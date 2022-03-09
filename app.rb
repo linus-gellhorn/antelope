@@ -26,9 +26,45 @@ get '/posts' do
   title
 end
 
-get '/db' do
-  # ASK WHERE { ?s ?p ?o }
-  result = sparql.ask.whether([:s, :p, :o]).true?
-  puts result.inspect   # => true or false
-  result.inspect
+get '/movies' do
+    data = {}
+    
+    query = "
+    SELECT DISTINCT ?movieName
+    WHERE {
+      ?movie dbo:starring dbr:Judi_Dench;
+      rdfs:label ?movieName .
+      FILTER (lang(?movieName) = 'en')
+    }
+    LIMIT 10
+    "
+
+  result = sparql.query(query)
+  result.each_solution do |solution|
+    solution.each_value    { |value| puts value }
+  end
+
+  data
 end
+
+get '/cast' do
+    data = {}
+    
+    query = "
+    SELECT ?l
+    WHERE {
+    ?movie a dbo:Film.
+    ?movie rdfs:label 'Love Actually'@en.
+    ?movie dbo:starring ?p.
+    ?p rdfs:label ?l
+    filter (lang(?l)='en')
+    }"
+
+  result = sparql.query(query)
+  result.each_solution do |solution|
+    solution.each_value    { |value| puts value }
+  end
+
+  data
+end
+
