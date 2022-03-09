@@ -17,7 +17,7 @@ get '/' do
     
     data = {"films" => []}
     
-    query = "
+    actor_query = "
     SELECT DISTINCT ?movieName
     WHERE {
       ?movie dbo:starring dbr:#{actor};
@@ -27,7 +27,7 @@ get '/' do
     LIMIT 10
     "
 
-    result = sparql.query(query)
+    result = sparql.query(actor_query)
 
     result.each_solution do |solution|
         solution.each_value    { |value| data["films"] << value }
@@ -43,7 +43,7 @@ get '/' do
    
     data = {"actors" => []}
     
-    query = "
+    film_query = "
     SELECT ?l
     WHERE {
     ?movie a dbo:Film.
@@ -55,7 +55,7 @@ get '/' do
     LIMIT 10
     "
 
-    result = sparql.query(query)
+    result = sparql.query(film_query)
 
     result.each_solution do |solution|
         solution.each_value    { |value| data["actors"] << value }
