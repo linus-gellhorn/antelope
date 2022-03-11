@@ -3,6 +3,9 @@ require 'sparql/client'
 
 sparql = SPARQL::Client.new("http://dbpedia.org/sparql")
 
+previous_actor_queries = {}
+previous_film_queries = {}
+
 get '/' do
   # matches "GET /?actor=foo&film=bar"
   actor = params['actor']
@@ -16,7 +19,14 @@ get '/' do
     puts "Returning films for #{actor}"
     
     data = {"films" => []}
-    
+
+    if previous_actor_queries.key?(actor)
+      puts "#{actor} is already in storage..."
+      # Early return from storage hash
+      data_from_storage = { "films" => previous_actor_queries[actor]}
+      return JSON[data_from_storage]
+    end
+
     actor_query = "
     SELECT DISTINCT ?movieName
     WHERE {
@@ -33,6 +43,10 @@ get '/' do
         solution.each_value    { |value| data["films"] << value }
     end
 
+    previous_actor_queries.merge!(actor => data["films"])
+    puts "So now actors storage is:"
+    puts previous_actor_queries
+
     return JSON[data]
   end
 
@@ -42,6 +56,13 @@ get '/' do
     puts "Returning cast for #{film_transformed_to_spaces}"
    
     data = {"actors" => []}
+
+    if previous_film_queries.key?(film)
+      puts "#{film} is already in storage..."
+      # Early return from storage hash
+      data_from_storage = { "actors" => previous_film_queries[film]}
+      return JSON[data_from_storage]
+    end
     
     film_query = "
     SELECT ?l
@@ -60,6 +81,10 @@ get '/' do
     result.each_solution do |solution|
         solution.each_value    { |value| data["actors"] << value }
     end
+
+    previous_film_queries.merge!(film => data["actors"])
+    puts "So now films storage is:"
+    puts previous_film_queries
 
     return JSON[data]
   end
